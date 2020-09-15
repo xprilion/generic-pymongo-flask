@@ -28,7 +28,7 @@ def send(data, status_code):
     """
         Create a Flask response based on the data and status_code received.
     """
-    return make_response(dumps(data)), status_code)
+    return make_response(dumps(data), status_code)
 
 @app.route('/')
 def home():
@@ -107,7 +107,7 @@ def update_item(table, id):
         for key in request.json.keys():
             r[key] = request.json[key]
         try:
-            tab.replace_one({"_id": id}, r)
+            tab.replace_one({"_id": ObjectId(id)}, r)
             output = {'message' : 'item updated'}
             return send(output, HTTP_SUCCESS_GET_OR_UPDATE)
         except Exception as e:
@@ -127,8 +127,7 @@ def delete_item(table, id):
     if r:
         try:
             tab.remove(r["_id"])
-            output = {'message' : 'item deleted'}
-            return send(output, HTTP_SUCCESS_DELETED)
+            return send("", HTTP_SUCCESS_DELETED)
         except Exception as e:
             output = {'error' : str(e)}
             return send(output, HTTP_BAD_REQUEST)
