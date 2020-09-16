@@ -48,7 +48,7 @@ def server_time():
 @app.route('/<collection_name>', methods=['POST'])
 def post_item(collection_name):
     """
-        Post one item in collection_name.
+        Post one item in collection.
     """
     collection = getattr(mongo.db, collection_name)
     formdata = request.json
@@ -63,7 +63,7 @@ def post_item(collection_name):
 @app.route('/<collection_name>/count', methods=['GET'])
 def collection_name_count(collection_name):
     """
-        Count of number of documents in a collection_name.
+        Count of number of documents in a collection.
     """
     collection = getattr(mongo.db, collection_name)
     results = collection.find()
@@ -75,19 +75,18 @@ def collection_name_count(collection_name):
 @app.route('/<collection_name>', methods=['GET'])
 def get_all_items(collection_name):
     """
-        Documents in a collection_name.
+        Documents in a collection.
     """
     collection = getattr(mongo.db, collection_name)
     output = []
     for q in collection.find():
-        q["_id"] = str(q["_id"])
         output.append(q)
     return send(output, HTTP_SUCCESS_GET_OR_UPDATE)
 
 @app.route('/<collection_name>/<id>', methods=['GET'])
 def get_one_item(collection_name, id):
     """
-        Get one item from a collection_name.
+        Get one item from a collection.
     """
     collection = getattr(mongo.db, collection_name)
     r = collection.find_one({'_id': ObjectId(id)})
@@ -99,7 +98,7 @@ def get_one_item(collection_name, id):
 @app.route('/<collection_name>/<id>', methods=['PUT'])
 def update_item(collection_name, id):
     """
-        Update one item in collection_name.
+        Update one item in collection.
     """
     collection = getattr(mongo.db, collection_name)
     r = collection.find_one({'_id': ObjectId(id)})
@@ -120,7 +119,7 @@ def update_item(collection_name, id):
 @app.route('/<collection_name>/<id>', methods=['DELETE'])
 def delete_item(collection_name, id):
     """
-        Delete one item from collection_name.
+        Delete one item from collection.
     """
     collection = getattr(mongo.db, collection_name)
     r = collection.find_one({'_id': ObjectId(id)})
