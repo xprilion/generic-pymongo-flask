@@ -45,69 +45,69 @@ def server_time():
     data = {"time": datetime.datetime.now()}
     return send(data, HTTP_SUCCESS_GET_OR_UPDATE)
 
-@app.route('/<table>/count', methods=['GET'])
-def table_count(table):
+@app.route('/<collection_name>', methods=['POST'])
+def post_item(collection_name):
     """
-        Count of number of documents in a table.
+        Post one item in collection_name.
     """
-    tab = getattr(mongo.db, table)
-    results = tab.find()
-    output = {
-        "count": results.count()
-    }
-    return send(output, HTTP_SUCCESS_GET_OR_UPDATE)
-
-@app.route('/<table>', methods=['GET'])
-def get_all_items(table):
-    """
-        Documents in a table.
-    """
-    tab = getattr(mongo.db, table)
-    output = []
-    for q in tab.find():
-        q["_id"] = str(q["_id"])
-        output.append(q)
-    return send(output, HTTP_SUCCESS_GET_OR_UPDATE)
-
-@app.route('/<table>/<id>', methods=['GET'])
-def get_one_item(table, id):
-    """
-        Get one item from a table.
-    """
-    tab = getattr(mongo.db, table)
-    r = tab.find_one({'_id': ObjectId(id)})
-    if r:
-        return send(r, HTTP_SUCCESS_GET_OR_UPDATE)
-    else:
-        return send({'error' : 'item not found'}, HTTP_NOT_FOUND)
-
-@app.route('/<table>', methods=['POST'])
-def post_item(table):
-    """
-        Post one item in table.
-    """
-    tab = getattr(mongo.db, table)
+    collection = getattr(mongo.db, collection_name)
     formdata = request.json
     try:
-        insert_id = str(tab.insert_one(formdata).inserted_id)
+        insert_id = str(collection.insert_one(formdata).inserted_id)
         output = {'message': 'new item created', "_id": insert_id}
         return send(output, HTTP_SUCCESS_CREATED)
     except Exception as e:
         output = {'error' : str(e)}
         return send(output, HTTP_BAD_REQUEST)
 
-@app.route('/<table>/<id>', methods=['PUT'])
-def update_item(table, id):
+@app.route('/<collection_name>/count', methods=['GET'])
+def collection_name_count(collection_name):
     """
-        Update one item in table.
+        Count of number of documents in a collection_name.
     """
-    tab = getattr(mongo.db, table)
-    r = tab.find_one({'_id': ObjectId(id)})
+    collection = getattr(mongo.db, collection_name)
+    results = collection.find()
+    output = {
+        "count": results.count()
+    }
+    return send(output, HTTP_SUCCESS_GET_OR_UPDATE)
+
+@app.route('/<collection_name>', methods=['GET'])
+def get_all_items(collection_name):
+    """
+        Documents in a collection_name.
+    """
+    collection = getattr(mongo.db, collection_name)
+    output = []
+    for q in collection.find():
+        q["_id"] = str(q["_id"])
+        output.append(q)
+    return send(output, HTTP_SUCCESS_GET_OR_UPDATE)
+
+@app.route('/<collection_name>/<id>', methods=['GET'])
+def get_one_item(collection_name, id):
+    """
+        Get one item from a collection_name.
+    """
+    collection = getattr(mongo.db, collection_name)
+    r = collection.find_one({'_id': ObjectId(id)})
+    if r:
+        return send(r, HTTP_SUCCESS_GET_OR_UPDATE)
+    else:
+        return send({'error' : 'item not found'}, HTTP_NOT_FOUND)
+
+@app.route('/<collection_name>/<id>', methods=['PUT'])
+def update_item(collection_name, id):
+    """
+        Update one item in collection_name.
+    """
+    collection = getattr(mongo.db, collection_name)
+    r = collection.find_one({'_id': ObjectId(id)})
     if r:
         for key in request.json.keys():
             r[key] = request.json[key]
         try:
-            tab.replace_one({"_id": ObjectId(id)}, r)
+            collection.replace_one({"_id": ObjectId(id)}, r)
             output = {'message' : 'item updated'}
             return send(output, HTTP_SUCCESS_GET_OR_UPDATE)
         except Exception as e:
@@ -117,16 +117,16 @@ def update_item(table, id):
         output = {'error' : 'item not found'}
         return send(output, HTTP_NOT_FOUND)
 
-@app.route('/<table>/<id>', methods=['DELETE'])
-def delete_item(table, id):
+@app.route('/<collection_name>/<id>', methods=['DELETE'])
+def delete_item(collection_name, id):
     """
-        Delete one item from table.
+        Delete one item from collection_name.
     """
-    tab = getattr(mongo.db, table)
-    r = tab.find_one({'_id': ObjectId(id)})
+    collection = getattr(mongo.db, collection_name)
+    r = collection.find_one({'_id': ObjectId(id)})
     if r:
         try:
-            tab.remove(r["_id"])
+            collection.remove(r["_id"])
             return send("", HTTP_SUCCESS_DELETED)
         except Exception as e:
             output = {'error' : str(e)}
